@@ -24,3 +24,12 @@ terraform {
 provider "aws" {
   region = "eu-west-1"
 }
+
+# Here we inject our values to the environment definition module which creates all actual resources.
+module "env-def" {
+  source   = "../../modules/env-def"
+  prefix   = "sseks"
+  env      = "dev"
+  # Ireland
+  region   = "eu-west-1"
+}
