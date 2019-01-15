@@ -3,16 +3,13 @@
 
 # Table of Contents  <!-- omit in toc -->
 - [Introduction](#introduction)
-- [Making the Clojure Simple Server Stateless](#making-the-clojure-simple-server-stateless)
+- [Simple Server Versions](#simple-server-versions)
 - [Simple Server Clojure Docker Image](#simple-server-clojure-docker-image)
 - [AWS Infrastructure](#aws-infrastructure)
   - [Terraform State](#terraform-state)
   - [Terraform Project Structure](#terraform-project-structure)
-  - [Terraform Module Example](#terraform-module-example)
-- [Kubernetes Configuration](#kubernetes-configuration)
-- [Testing the Kubernetes Configuration Using Minikube](#testing-the-kubernetes-configuration-using-minikube)
-- [Kubernetes Deployment to AWS EKS](#kubernetes-deployment-to-aws-eks)
-- [Demonstration Using AWS EKS](#demonstration-using-aws-eks)
+- [Using Terraform to Create the AWS EKS Infrastructure](#using-terraform-to-create-the-aws-eks-infrastructure)
+- [Links to External Documentation](#links-to-external-documentation)
 
 
 
