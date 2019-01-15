@@ -53,6 +53,16 @@ For storing the Terraform state I'm using [S3](https://aws.amazon.com/s3/) [terr
 
 I'm using a Terraform structure in which I have environments ([envs](https://github.com/karimarttila/aws/tree/master/simple-server-eks/terraform/envs)) and [modules](https://github.com/karimarttila/aws/tree/master/simple-server-eks/terraform/modules). Environments define the environments and they reuse the entities defined in the modules directory. Environment basically just injects the environment related variables to [env-def](https://github.com/karimarttila/aws/tree/master/simple-server-eks/terraform/modules/env-def) which defines the actual modules to build the cloud infra.
 
+## AWS Resources
+
+### DynamoDB Tables
+
+I created module [dynamodb-tables](https://github.com/karimarttila/aws/tree/master/simple-server-eks/terraform/modules/dynamodb-tables) to isolate the creation of the needed DynamoDB tables. This module uses module [dynamodb](https://github.com/karimarttila/aws/tree/master/simple-server-eks/terraform/modules/dynamodb) to create all other tables except the product table which is a bit different with its global index and is therefore created separately.
+
+### EKS 
+
+TODO
+
 # Using Terraform to Create the AWS EKS Infrastructure
 
 You need an AWS account and access key and secret key stored in your .aws directory, of course. From now on we assume that you have configured an AWS profile and we refer to that AWS profile as YOUR-AWS-PROFILE.
