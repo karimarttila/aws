@@ -8,6 +8,9 @@
 - [AWS Infrastructure](#aws-infrastructure)
   - [Terraform State](#terraform-state)
   - [Terraform Project Structure](#terraform-project-structure)
+  - [AWS Resources](#aws-resources)
+    - [DynamoDB Tables](#dynamodb-tables)
+    - [EKS](#eks)
 - [Using Terraform to Create the AWS EKS Infrastructure](#using-terraform-to-create-the-aws-eks-infrastructure)
 - [Links to External Documentation](#links-to-external-documentation)
 
