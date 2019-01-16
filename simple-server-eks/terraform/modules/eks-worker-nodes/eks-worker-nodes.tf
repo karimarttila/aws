@@ -137,8 +137,8 @@ USERDATA
 resource "aws_launch_configuration" "eks-worker-node-launch-configuration" {
   associate_public_ip_address = true
   iam_instance_profile        = "${aws_iam_instance_profile.eks-worker-node-instance-profile.name}"
-  # Let's try image 1.11 which is the current EKS version.
-  image_id                    = "amazon-eks-node-1.11-v20190109"
+  # Let's try image 1.11 which is the current EKS version: amazon-eks-node-1.11-v20190109
+  image_id                    = "ami-01e08d22b9439c15a"
   #image_id                    = "${data.aws_ami.eks-worker-node-ami.id}"
   instance_type               = "m4.large"
   name_prefix                 = "${local.my_name}-lc"

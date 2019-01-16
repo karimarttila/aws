@@ -116,16 +116,21 @@ AWS_PROFILE=YOUR-AWS-PROFILE kubectl apply -f ../../../tmp/config_map_aws_auth.y
 while true; do echo "*****************" ; AWS_PROFILE=YOUR-AWS-PROFILE kubectl get all --all-namespaces   ; sleep 10; done
 ```
 
-You should see the worker nodes getting created and starting to run. In my first try the worker nodes crashed. When checking the pods with describe and logs there was some info: Describe: "Back-off restarting failed container", Logs: "=====Starting amazon-k8s-agent =========== ERROR: logging before flag.Parse: W0116 18:25:39.734868      10 client_config.go:533] Neither --kubeconfig nor --master was specified.  Using the inClusterConfig.  This might not work."  Merry Christmas - nice to start googling the reason for this. First I created a key pair and configured the worker node configuration to use that key pair so that I would be able to ssh to worker node instances to see what's happening there. Ssh'ed to EC2 and then checked what's happening in the docker land: docker ps -a | wc -l => 41, Merry Christmas. 41, wtf?
+You should see the worker nodes getting created and starting to run. In my first try the worker nodes crashed. When checking the pods with describe and logs there was some info: Describe: "Back-off restarting failed container", Logs: "=====Starting amazon-k8s-agent =========== ERROR: logging before flag.Parse: W0116 18:25:39.734868      10 client_config.go:533] Neither --kubeconfig nor --master was specified.  Using the inClusterConfig.  This might not work."  Merry Christmas - nice to start googling the reason for this. First I created a key pair and configured the worker node configuration to use that key pair so that I would be able to ssh to worker node instances to see what's happening there. Ssh'ed to EC2 and then checked what's happening in the docker land: docker ps -a | wc -l => 41, Merry Christmas. 41, wtf? I checked that the current EKS version is 1.11. So, instead of getting the newest AMI with a filter like in the original example, I chose the newest AMI which had "1.11" in its name. 
 
+I must say that the basic Kubernetes as a Service configuration in the Azure side (AKS) was a lot simpler. The worker node configuration and hassle makes the Kubernetes as a Service configuration a lot more complex in the AWS side. 
 
+Now logs says: "ERROR: logging before flag.Parse: W0116 19:45:52.005365      13 client_config.go:533] Neither --kubeconfig nor --master was specified.  Using the inClusterConfig.  This might not work. Failed to communicate with K8S Server. Please check instance security groups or http proxy setting"
 
+Ok. Let's continue this tomorrow and figure out why there is this **Failed to communicate with K8S Server. Please check instance security groups or http proxy setting** error.
 
+ 
+# Observations
 
+**EKS worker node hassle.** The EKS cluster itself is easy to create, but the worker node hassle was really painful in the AWS EKS compared to Azure AKS (in which you didn't have to create any separate worker nodes).
 
+**Creating EKS takes really long.** It took over 10 minutes to create EKS. And after EKS terraform tells AWS to create the launch configuration for worker nodes, then worker node instances are created according to launch configuration template... takes time.
 
-
-TODO.
 
 
 # Links to External Documentation

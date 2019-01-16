@@ -31,18 +31,18 @@ module "eks" {
 }
 
 # EKS worker nodes, launch configuration, autoscaling group etc.
-//module "eks-worker-nodes" {
-//  source                    = "../eks-worker-nodes"
-//  prefix                    = "${var.prefix}"
-//  env                       = "${var.env}"
-//  region                    = "${var.region}"
-//  name                      = "eks-worker-node"
-//  vpc_id                    = "${module.vpc.vpc_id}"
-//  subnet_ids                = "${module.vpc.subnet_ids}"
-//  eks_cluster_certificate_authority_0_data = "${module.eks.eks_cluster_certificate_authority_0_data}"
-//  eks_cluster_endpoint              = "${module.eks.eks_cluster_endpoint}"
-//  eks_cluster_name                  = "${module.eks.eks_cluster_name}"
-//  eks_cluster_security_group_id     = "${module.eks.eks_security_group_id}"
-//}
+module "eks-worker-nodes" {
+  source                    = "../eks-worker-nodes"
+  prefix                    = "${var.prefix}"
+  env                       = "${var.env}"
+  region                    = "${var.region}"
+  name                      = "eks-worker-node"
+  vpc_id                    = "${module.vpc.vpc_id}"
+  subnet_ids                = "${module.vpc.subnet_ids}"
+  eks_cluster_certificate_authority_0_data = "${module.eks.eks_cluster_certificate_authority_0_data}"
+  eks_cluster_endpoint              = "${module.eks.eks_cluster_endpoint}"
+  eks_cluster_name                  = "${module.eks.eks_cluster_name}"
+  eks_cluster_security_group_id     = "${module.eks.eks_security_group_id}"
+}
 
 

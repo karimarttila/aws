@@ -66,6 +66,8 @@ resource "aws_security_group_rule" "eks-node-https-ingress-rule" {
 resource "aws_eks_cluster" "eks-cluster" {
   name     = "${local.my_name}-eks-cluster"
   role_arn = "${aws_iam_role.eks-iam-role.arn}"
+  version = "1.11"
+
 
   vpc_config {
     security_group_ids = ["${aws_security_group.eks-security-group.id}"]
