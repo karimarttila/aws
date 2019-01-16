@@ -10,7 +10,6 @@ module "dynamodb-tables" {
   region                    = "${var.region}"
 }
 
-
 # EKS VPC.
 module "vpc" {
   source                    = "../vpc"
@@ -19,4 +18,31 @@ module "vpc" {
   region                    = "${var.region}"
   name                      = "eks-demo"
 }
+
+# EKS with security groups, roles etc.
+module "eks" {
+  source                    = "../eks"
+  prefix                    = "${var.prefix}"
+  env                       = "${var.env}"
+  region                    = "${var.region}"
+  name                      = "eks-demo"
+  vpc_id                    = "${module.vpc.vpc_id}"
+  subnet_ids                = "${module.vpc.subnet_ids}"
+}
+
+# EKS worker nodes, launch configuration, autoscaling group etc.
+//module "eks-worker-nodes" {
+//  source                    = "../eks-worker-nodes"
+//  prefix                    = "${var.prefix}"
+//  env                       = "${var.env}"
+//  region                    = "${var.region}"
+//  name                      = "eks-worker-node"
+//  vpc_id                    = "${module.vpc.vpc_id}"
+//  subnet_ids                = "${module.vpc.subnet_ids}"
+//  eks_cluster_certificate_authority_0_data = "${module.eks.eks_cluster_certificate_authority_0_data}"
+//  eks_cluster_endpoint              = "${module.eks.eks_cluster_endpoint}"
+//  eks_cluster_name                  = "${module.eks.eks_cluster_name}"
+//  eks_cluster_security_group_id     = "${module.eks.eks_security_group_id}"
+//}
+
 

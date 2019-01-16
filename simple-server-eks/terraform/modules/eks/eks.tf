@@ -3,6 +3,7 @@ locals {
   my_env   = "${var.prefix}-${var.env}"
 }
 
+
 # Using example provided in
 # https://github.com/terraform-providers/terraform-provider-aws/blob/master/examples/eks-getting-started/eks-cluster.tf
 # With some of my own conventions.
@@ -28,21 +29,11 @@ POLICY
 resource "aws_iam_role_policy_attachment" "eks-cluster-policy" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"
   role       = "${aws_iam_role.eks-iam-role.name}"
-  tags {
-    Name        = "${local.my_name}-eks-cluster-policy"
-    Environment = "${local.my_env}"
-    Terraform   = "true"
-  }
 }
 
 resource "aws_iam_role_policy_attachment" "eks-service-policy" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonEKSServicePolicy"
   role       = "${aws_iam_role.eks-iam-role.name}"
-  tags {
-    Name        = "${local.my_name}-eks-service-policy"
-    Environment = "${local.my_env}"
-    Terraform   = "true"
-  }
 }
 
 resource "aws_security_group" "eks-security-group" {
@@ -55,7 +46,6 @@ resource "aws_security_group" "eks-security-group" {
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
-
   tags {
     Name        = "${local.my_name}-eks-security-group"
     Environment = "${local.my_env}"
@@ -71,12 +61,6 @@ resource "aws_security_group_rule" "eks-node-https-ingress-rule" {
   source_security_group_id = "${aws_security_group.eks-security-group.id}"
   to_port                  = 443
   type                     = "ingress"
-
-  tags {
-    Name        = "${local.my_name}-eks-node-https-ingress-rule"
-    Environment = "${local.my_env}"
-    Terraform   = "true"
-  }
 }
 
 resource "aws_eks_cluster" "eks-cluster" {
@@ -92,10 +76,4 @@ resource "aws_eks_cluster" "eks-cluster" {
     "aws_iam_role_policy_attachment.eks-cluster-policy",
     "aws_iam_role_policy_attachment.eks-service-policy",
   ]
-  tags {
-    Name        = "${local.my_name}-eks-cluster"
-    Environment = "${local.my_env}"
-    Terraform   = "true"
-  }
-
 }

@@ -83,6 +83,50 @@ AWS_PROFILE=YOUR-AWS-PROFILE terraform apply   # => Apply changes
 ```
 
 
+# Connecting to AWS EKS.
+
+First you have to install [aws-cli](https://github.com/aws/aws-cli) and [aws-iam-authenticator](https://docs.aws.amazon.com/eks/latest/userguide/install-aws-iam-authenticator.html).
+
+Then you have to install [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/) tool.
+
+Then we configure kubectl context for our new AWS EKS Kubernetes cluster:
+
+```bash
+# First use terraform to print the cluster name: 
+AWS_PROFILE=YOUR-AWS-PROFILE terraform output -module=env-def.eks
+# Then get the Kubernetes cluster context: 
+AWS_PROFILE=YOUR-AWS-PROFILE aws eks update-kubeconfig --name YOUR-EKS-CLUSTER-NAME
+# Check the contexts:
+AWS_PROFILE=YOUR-AWS-PROFILE kubectl config get-contexts  # => You should find your new EKS context there.
+# Check initial setup of the cluster:
+AWS_PROFILE=tmv-test kubectl get all --all-namespaces  # => prints the system pods...
+```
+
+If you finally see stuff belonging to kube-system namespace you should be good to go.
+
+Then you have to join the worker nodes to the EKS cluster (following instructions in [Terraform EKS Introduction](https://learn.hashicorp.com/terraform/aws/eks-intro)):
+
+```bash
+# Store the config map that is needed in the next command.
+# NOTE: Store file outside your git repository.
+AWS_PROFILE=YOUR-AWS-PROFILE terraform output -module=env-def.eks-worker-nodes > ../../../tmp/config_map_aws_auth.yml 
+emacs ../../../tmp/config_map_aws_auth.yml  # => Delete the first rows until "apiVersion: v1" 
+AWS_PROFILE=YOUR-AWS-PROFILE kubectl apply -f ../../../tmp/config_map_aws_auth.yml
+# In terminal 2:
+while true; do echo "*****************" ; AWS_PROFILE=YOUR-AWS-PROFILE kubectl get all --all-namespaces   ; sleep 10; done
+```
+
+You should see the worker nodes getting created and starting to run. In my first try the worker nodes crashed. When checking the pods with describe and logs there was some info: Describe: "Back-off restarting failed container", Logs: "=====Starting amazon-k8s-agent =========== ERROR: logging before flag.Parse: W0116 18:25:39.734868      10 client_config.go:533] Neither --kubeconfig nor --master was specified.  Using the inClusterConfig.  This might not work."  Merry Christmas - nice to start googling the reason for this. First I created a key pair and configured the worker node configuration to use that key pair so that I would be able to ssh to worker node instances to see what's happening there. Ssh'ed to EC2 and then checked what's happening in the docker land: docker ps -a | wc -l => 41, Merry Christmas. 41, wtf?
+
+
+
+
+
+
+
+
+TODO.
+
 
 # Links to External Documentation
 
