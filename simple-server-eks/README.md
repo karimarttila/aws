@@ -64,7 +64,9 @@ I created module [dynamodb-tables](https://github.com/karimarttila/aws/tree/mast
 
 ### EKS 
 
-TODO
+I was a bit surprised how much infra code there is using Terraform's [AWS EKS Introduction](https://learn.hashicorp.com/terraform/aws/eks-intro). I mainly used the example provided in [eks-cluster.tf](https://github.com/terraform-providers/terraform-provider-aws/blob/master/examples/eks-getting-started/eks-cluster.tf) with some of my own conventions.
+
+
 
 # Using Terraform to Create the AWS EKS Infrastructure
 

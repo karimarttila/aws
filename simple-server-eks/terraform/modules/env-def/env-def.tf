@@ -9,3 +9,14 @@ module "dynamodb-tables" {
   env                       = "${var.env}"
   region                    = "${var.region}"
 }
+
+
+# EKS VPC.
+module "vpc" {
+  source                    = "../vpc"
+  prefix                    = "${var.prefix}"
+  env                       = "${var.env}"
+  region                    = "${var.region}"
+  name                      = "eks-demo"
+}
+
