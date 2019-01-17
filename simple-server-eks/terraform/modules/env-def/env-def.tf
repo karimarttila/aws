@@ -10,12 +10,12 @@ locals {
 
 
 # The dynamodb tables.
-//module "dynamodb-tables" {
-//  source                    = "../dynamodb-tables"
-//  prefix                    = "${var.prefix}"
-//  env                       = "${var.env}"
-//  region                    = "${var.region}"
-//}
+module "dynamodb-tables" {
+  source                    = "../dynamodb-tables"
+  prefix                    = "${var.prefix}"
+  env                       = "${var.env}"
+  region                    = "${var.region}"
+}
 
 # EKS VPC.
 module "vpc" {
@@ -26,6 +26,15 @@ module "vpc" {
   name                  = "eks-demo"
   eks_cluster_name      = "${local.eks_cluster_name}"
 }
+
+# NOTE: You need one ECR for each image.
+module "ecr-repositories" {
+  source                = "../ecr-repositories"
+  prefix                = "${var.prefix}"
+  env                   = "${var.env}"
+  region                = "${var.region}"
+}
+
 
 # EKS with security groups, roles etc.
 module "eks" {
@@ -38,7 +47,6 @@ module "eks" {
   subnet_ids            = "${module.vpc.subnet_ids}"
   eks_cluster_name      = "${local.eks_cluster_name}"
   eks_worker_node_security_group_id = "${module.eks-worker-nodes.eks_worker_node_security_group_id}"
-
 }
 
 # EKS worker nodes, launch configuration, autoscaling group etc.

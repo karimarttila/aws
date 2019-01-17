@@ -67,8 +67,14 @@ I created module [dynamodb-tables](https://github.com/karimarttila/aws/tree/mast
 
 ### EKS 
 
-I was a bit surprised how much infra code there is using Terraform's [AWS EKS Introduction](https://learn.hashicorp.com/terraform/aws/eks-intro). I mainly used the example provided in [eks-cluster.tf](https://github.com/terraform-providers/terraform-provider-aws/blob/master/examples/eks-getting-started/eks-cluster.tf) with some of my own conventions.
+I was a bit surprised how much infra code there is using Terraform's [AWS EKS Introduction](https://learn.hashicorp.com/terraform/aws/eks-intro). I mainly used the example provided in [eks-cluster.tf](https://github.com/terraform-providers/terraform-provider-aws/blob/master/examples/eks-getting-started/eks-cluster.tf) with some of my own conventions. 
 
+Because there was quite a lot of infra code I also managed to screw the infra a bit. So, if you are using that example as your baseline read very carefully all tags, security group references, why cluster name is defined first etc. You can read about my tumbling in chapter "Debugging Why the First Attempt to Create EKS Failed" below.
+
+
+### ECR
+
+ECR repository infra code is extremely simple. Elastic Container Registry is needed to host the Docker images that Kubernetes deployments use.
 
 
 # Using Terraform to Create the AWS EKS Infrastructure
@@ -122,7 +128,7 @@ while true; do echo "*****************" ; AWS_PROFILE=YOUR-AWS-PROFILE kubectl g
 You should see the worker nodes getting created and starting to run. In my first try the worker nodes crashed. 
 
 
-# Debugging Why the First Attempt Failed
+# Debugging Why the First Attempt to Create EKS Failed
 
 When checking the pods with describe and logs there was some info: Describe: "Back-off restarting failed container", Logs: "=====Starting amazon-k8s-agent =========== ERROR: logging before flag.Parse: W0116 18:25:39.734868      10 client_config.go:533] Neither --kubeconfig nor --master was specified.  Using the inClusterConfig.  This might not work."  Merry Christmas - nice to start googling the reason for this. First I created a key pair and configured the worker node configuration to use that key pair so that I would be able to ssh to worker node instances to see what's happening there. Ssh'ed to EC2 and then checked what's happening in the docker land: docker ps -a | wc -l => 41, Merry Christmas. 41, wtf? I checked that the current EKS version is 1.11. So, instead of getting the newest AMI with a filter like in the original example, I chose the newest AMI which had "1.11" in its name. 
 
@@ -136,6 +142,7 @@ After some debugging I think I found the error. The Terraform EKS Introduction s
 
 I fixed the tag issue but still same problems. Then I decided to follow one cloud infra best practice: create a reference implementation that should work so that you can compare your solution with the reference solution resource by resource. I git cloned the Terraform example [eks-getting-started](https://github.com/terraform-providers/terraform-provider-aws/tree/master/examples/eks-getting-started), changed region and vpc address space (the one in the original example was already taken) and deployed infra to my AWS account. This version deployed ok and EKS cluster was healthy. So, I had a healthy reference baseline to compare my not-working EKS resource by resource. Pretty soon I realized that I have to make one change: the EKS cluster name needs to be set before anything else and then the cluster name needs to be injected into vpc, eks and eks-worker-nodes modules. And there was also a bug in one security group id reference which I also fixed. Now my own EKS cluster setup also worked as the reference setup.
 
+Actually, it was a kind of good thing that I didn't get the setup right the first time. Now I had to spend some serious cloud infra debugging time to figure out how the setup actually is supposed to work and not just blindly follow some black box example.
 
  
 # Observations
