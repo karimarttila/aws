@@ -67,28 +67,6 @@ resource "aws_security_group" "eks-worker-node-security-group" {
      "kubernetes.io/cluster/${var.eks_cluster_name}", "owned",
     )
   }"
-
-//  tags {
-//    key                 = "Name"
-//    value               = "${local.my_name}-security-group"
-//    propagate_at_launch = true
-//  }
-//  tag {
-//    key                 = "Environment"
-//    value               = "${local.my_env}"
-//    propagate_at_launch = true
-//  }
-//  tag {
-//    key                 = "Terraform"
-//    value               = "true"
-//    propagate_at_launch = true
-//  }
-//  tag {
-//    key                 = "kubernetes.io/cluster/${var.eks_cluster_name}"
-//    value               = "owned"
-//    propagate_at_launch = true
-//  }
-
 }
 
 resource "aws_security_group_rule" "eks-worker-node-ingress-self" {
@@ -110,6 +88,7 @@ resource "aws_security_group_rule" "eks-worker-node-ingress-cluster" {
   to_port                  = 65535
   type                     = "ingress"
 }
+
 
 data "aws_ami" "eks-worker-node-ami" {
   filter {

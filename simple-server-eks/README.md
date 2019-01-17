@@ -12,6 +12,9 @@
     - [DynamoDB Tables](#dynamodb-tables)
     - [EKS](#eks)
 - [Using Terraform to Create the AWS EKS Infrastructure](#using-terraform-to-create-the-aws-eks-infrastructure)
+- [Connecting to AWS EKS.](#connecting-to-aws-eks)
+- [Debugging Why the First Attempt Failed](#debugging-why-the-first-attempt-failed)
+- [Observations](#observations)
 - [Links to External Documentation](#links-to-external-documentation)
 
 
@@ -116,13 +119,23 @@ AWS_PROFILE=YOUR-AWS-PROFILE kubectl apply -f ../../../tmp/config_map_aws_auth.y
 while true; do echo "*****************" ; AWS_PROFILE=YOUR-AWS-PROFILE kubectl get all --all-namespaces   ; sleep 10; done
 ```
 
-You should see the worker nodes getting created and starting to run. In my first try the worker nodes crashed. When checking the pods with describe and logs there was some info: Describe: "Back-off restarting failed container", Logs: "=====Starting amazon-k8s-agent =========== ERROR: logging before flag.Parse: W0116 18:25:39.734868      10 client_config.go:533] Neither --kubeconfig nor --master was specified.  Using the inClusterConfig.  This might not work."  Merry Christmas - nice to start googling the reason for this. First I created a key pair and configured the worker node configuration to use that key pair so that I would be able to ssh to worker node instances to see what's happening there. Ssh'ed to EC2 and then checked what's happening in the docker land: docker ps -a | wc -l => 41, Merry Christmas. 41, wtf? I checked that the current EKS version is 1.11. So, instead of getting the newest AMI with a filter like in the original example, I chose the newest AMI which had "1.11" in its name. 
+You should see the worker nodes getting created and starting to run. In my first try the worker nodes crashed. 
+
+
+# Debugging Why the First Attempt Failed
+
+When checking the pods with describe and logs there was some info: Describe: "Back-off restarting failed container", Logs: "=====Starting amazon-k8s-agent =========== ERROR: logging before flag.Parse: W0116 18:25:39.734868      10 client_config.go:533] Neither --kubeconfig nor --master was specified.  Using the inClusterConfig.  This might not work."  Merry Christmas - nice to start googling the reason for this. First I created a key pair and configured the worker node configuration to use that key pair so that I would be able to ssh to worker node instances to see what's happening there. Ssh'ed to EC2 and then checked what's happening in the docker land: docker ps -a | wc -l => 41, Merry Christmas. 41, wtf? I checked that the current EKS version is 1.11. So, instead of getting the newest AMI with a filter like in the original example, I chose the newest AMI which had "1.11" in its name. 
 
 I must say that the basic Kubernetes as a Service configuration in the Azure side (AKS) was a lot simpler. The worker node configuration and hassle makes the Kubernetes as a Service configuration a lot more complex in the AWS side. 
 
 Now logs says: "ERROR: logging before flag.Parse: W0116 19:45:52.005365      13 client_config.go:533] Neither --kubeconfig nor --master was specified.  Using the inClusterConfig.  This might not work. Failed to communicate with K8S Server. Please check instance security groups or http proxy setting"
 
 Ok. Let's continue this tomorrow and figure out why there is this **Failed to communicate with K8S Server. Please check instance security groups or http proxy setting** error.
+
+After some debugging I think I found the error. The Terraform EKS Introduction says: "NOTE: The usage of the specific kubernetes.io/cluster/* resource tags below are required for EKS and Kubernetes to discover and manage networking resources." I forgot to add this tag to certain resources. Let's destroy everything, add the required tags, review all code and then create everything again.
+
+I fixed the tag issue but still same problems. Then I decided to follow one cloud infra best practice: create a reference implementation that should work so that you can compare your solution with the reference solution resource by resource. I git cloned the Terraform example [eks-getting-started](https://github.com/terraform-providers/terraform-provider-aws/tree/master/examples/eks-getting-started), changed region and vpc address space (the one in the original example was already taken) and deployed infra to my AWS account. This version deployed ok and EKS cluster was healthy. So, I had a healthy reference baseline to compare my not-working EKS resource by resource. Pretty soon I realized that I have to make one change: the EKS cluster name needs to be set before anything else and then the cluster name needs to be injected into vpc, eks and eks-worker-nodes modules. And there was also a bug in one security group id reference which I also fixed. Now my own EKS cluster setup also worked as the reference setup.
+
 
  
 # Observations

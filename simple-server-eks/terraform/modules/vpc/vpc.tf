@@ -12,11 +12,14 @@ data "aws_availability_zones" "available" {}
 resource "aws_vpc" "eks-vpc" {
   cidr_block = "10.10.0.0/23"
 
-  tags {
-    Name        = "${local.my_name}-vpc"
-    Environment = "${local.my_env}"
-    Terraform   = "true"
-  }
+  tags = "${
+    map(
+     "Name", "${local.my_name}-vpc",
+     "Environment", "${local.my_env}",
+     "Terraform", "true",
+     "kubernetes.io/cluster/${var.eks_cluster_name}", "shared",
+    )
+  }"
 }
 
 resource "aws_subnet" "eks-subnet" {
@@ -26,11 +29,14 @@ resource "aws_subnet" "eks-subnet" {
   cidr_block        = "10.10.${count.index}.0/24"
   vpc_id            = "${aws_vpc.eks-vpc.id}"
 
-  tags {
-    Name        = "${local.my_name}-subnet-${count.index}"
-    Environment = "${local.my_env}"
-    Terraform   = "true"
-  }
+  tags = "${
+    map(
+     "Name", "${local.my_name}-subnet-${count.index}",
+     "Environment", "${local.my_env}",
+     "Terraform", "true",
+     "kubernetes.io/cluster/${var.eks_cluster_name}", "shared",
+    )
+  }"
 }
 
 resource "aws_internet_gateway" "eks-internet-gateway" {

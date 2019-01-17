@@ -36,6 +36,7 @@ resource "aws_iam_role_policy_attachment" "eks-service-policy" {
   role       = "${aws_iam_role.eks-iam-role.name}"
 }
 
+
 resource "aws_security_group" "eks-security-group" {
   name        = "${local.my_name}-eks-security-group"
   description = "Cluster communication with worker nodes"
@@ -58,13 +59,15 @@ resource "aws_security_group_rule" "eks-node-https-ingress-rule" {
   from_port                = 443
   protocol                 = "tcp"
   security_group_id        = "${aws_security_group.eks-security-group.id}"
-  source_security_group_id = "${aws_security_group.eks-security-group.id}"
+  source_security_group_id = "${var.eks_worker_node_security_group_id}"
   to_port                  = 443
   type                     = "ingress"
 }
 
 resource "aws_eks_cluster" "eks-cluster" {
-  name     = "${local.my_name}-eks-cluster"
+  # NOTE: We need to use the cluster name we gave to VPC module
+  # Since the name is used in VPC tag and EKS glues things together using that tag.
+  name     = "${var.eks_cluster_name}"
   role_arn = "${aws_iam_role.eks-iam-role.arn}"
   version = "1.11"
 
