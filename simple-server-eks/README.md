@@ -31,6 +31,7 @@ I'm later also changing the previous Kubernetes deployment configuration to supp
 
 This project is interesting since I haven't been doing any AWS work for some 6 months since I have been working in the Azure side in my corporate universe. Now in my personal study universe this is an interesting chance to refresh my AWS skills and also see new AWS features. 
 
+There is a blog post regarding this exercise which is a bit more readable than this README.md file: [Creating AWS Elastic Container Service for Kubernetes (EKS) the Right Way](https://medium.com/@kari.marttila/creating-aws-elastic-container-service-for-kubernetes-eks-the-right-way-9fd7ef4a66f1).
 
 
 # Simple Server Versions
