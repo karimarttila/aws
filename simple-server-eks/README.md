@@ -10,10 +10,12 @@
   - [Terraform Project Structure](#terraform-project-structure)
   - [AWS Resources](#aws-resources)
     - [DynamoDB Tables](#dynamodb-tables)
+    - [VPC and Subnets](#vpc-and-subnets)
     - [EKS](#eks)
+    - [ECR](#ecr)
 - [Using Terraform to Create the AWS EKS Infrastructure](#using-terraform-to-create-the-aws-eks-infrastructure)
 - [Connecting to AWS EKS.](#connecting-to-aws-eks)
-- [Debugging Why the First Attempt Failed](#debugging-why-the-first-attempt-failed)
+- [Debugging Why the First Attempt to Create EKS Failed](#debugging-why-the-first-attempt-to-create-eks-failed)
 - [Observations](#observations)
 - [Links to External Documentation](#links-to-external-documentation)
 
@@ -65,6 +67,10 @@ I'm using a Terraform structure in which I have environments ([envs](https://git
 
 I created module [dynamodb-tables](https://github.com/karimarttila/aws/tree/master/simple-server-eks/terraform/modules/dynamodb-tables) to isolate the creation of the needed DynamoDB tables. This module uses module [dynamodb](https://github.com/karimarttila/aws/tree/master/simple-server-eks/terraform/modules/dynamodb) to create all other tables except the product table which is a bit different with its global index and is therefore created separately.
 
+### VPC and Subnets
+
+It was a bit of a suprise that you need that much VPC stuff (compared to Azure side). Possibly you necessarily don't need all these VPCs and subnets (if you just want to use the default VPC) but I thought it is better to stick with the working example as much as possible. I downgraded the VPC address space from the exampe - I thought that 65.000 addresses for a Kubernetes cluster is a bit of an overkill.
+
 ### EKS 
 
 I was a bit surprised how much infra code there is using Terraform's [AWS EKS Introduction](https://learn.hashicorp.com/terraform/aws/eks-intro). I mainly used the example provided in [eks-cluster.tf](https://github.com/terraform-providers/terraform-provider-aws/blob/master/examples/eks-getting-started/eks-cluster.tf) with some of my own conventions. 
@@ -74,7 +80,9 @@ Because there was quite a lot of infra code I also managed to screw the infra a 
 
 ### ECR
 
-ECR repository infra code is extremely simple. Elastic Container Registry is needed to host the Docker images that Kubernetes deployments use.
+Elastic Container Registry is needed to host the Docker images that Kubernetes deployments use.
+
+ECR repository infra code is extremely simple. I created an ecr-repositories module to abstract the ecr stuff so that I can import only one module in the main env-def environment definition. I create the three ecr repositories in that ecr-repositories module using the same ecr Terraform module. 
 
 
 # Using Terraform to Create the AWS EKS Infrastructure
@@ -108,7 +116,7 @@ AWS_PROFILE=YOUR-AWS-PROFILE aws eks update-kubeconfig --name YOUR-EKS-CLUSTER-N
 # Check the contexts:
 AWS_PROFILE=YOUR-AWS-PROFILE kubectl config get-contexts  # => You should find your new EKS context there.
 # Check initial setup of the cluster:
-AWS_PROFILE=tmv-test kubectl get all --all-namespaces  # => prints the system pods...
+AWS_PROFILE=YOUR-AWS-PROFILE kubectl get all --all-namespaces  # => prints the system pods...
 ```
 
 If you finally see stuff belonging to kube-system namespace you should be good to go.
