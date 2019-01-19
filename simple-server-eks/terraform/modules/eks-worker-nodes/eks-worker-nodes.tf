@@ -32,7 +32,7 @@ resource "aws_iam_role_policy_attachment" "eks-worker-node-policy" {
   role       = "${aws_iam_role.eks-worker-node-iam-role.name}"
 }
 
-resource "aws_iam_role_policy_attachment" "eks-workder-node-eks-cni-policy" {
+resource "aws_iam_role_policy_attachment" "eks-worker-node-eks-cni-policy" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
   role       = "${aws_iam_role.eks-worker-node-iam-role.name}"
 }
@@ -41,6 +41,37 @@ resource "aws_iam_role_policy_attachment" "eks-worker-node-ec2-container-registr
   policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
   role       = "${aws_iam_role.eks-worker-node-iam-role.name}"
 }
+
+
+# I used the excellent AWS Policy Generator for this.
+resource "aws_iam_role_policy" "eks-worker-node-dynamodb-role-policy" {
+  name   = "${local.my_name}-dynamodb-role-policy"
+  role   = "${aws_iam_role.eks-worker-node-iam-role.id}"
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "AllowDynamoDBAccess",
+      "Action": [
+        "dynamodb:BatchGetItem",
+        "dynamodb:BatchWriteItem",
+        "dynamodb:DeleteItem",
+        "dynamodb:GetItem",
+        "dynamodb:GetRecords",
+        "dynamodb:PutItem",
+        "dynamodb:Query",
+        "dynamodb:Scan",
+        "dynamodb:UpdateItem"
+      ],
+      "Effect": "Allow",
+      "Resource": ${jsonencode(var.dynamodb_arns)}
+    }
+  ]
+}
+EOF
+}
+
 
 resource "aws_iam_instance_profile" "eks-worker-node-instance-profile" {
   name = "${local.my_name}-instance-profile"

@@ -62,6 +62,7 @@ module "eks-worker-nodes" {
   eks_cluster_endpoint              = "${module.eks.eks_cluster_endpoint}"
   eks_cluster_name                  = "${local.eks_cluster_name}"
   eks_cluster_security_group_id     = "${module.eks.eks_security_group_id}"
+  dynamodb_arns                     = "${module.dynamodb-tables.all_dynamodb_arns}"
 }
 
 

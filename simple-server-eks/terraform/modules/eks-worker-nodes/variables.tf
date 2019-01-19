@@ -10,5 +10,8 @@ variable "eks_cluster_certificate_authority_0_data" {}
 variable "subnet_ids" {
   type = "list"
 }
+variable "dynamodb_arns" {
+  type = "list"
+}
 
 
