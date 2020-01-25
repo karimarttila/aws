@@ -1,7 +1,7 @@
 locals {
   my_name             = "${var.prefix}-${var.env}-${var.name}"
   my_env              = "${var.prefix}-${var.env}"
-  my_private_key_name = "${local.my_name}-workder-node-key"
+  my_private_key_name = "${local.my_name}-worker-node-key"
 }
 
 # Using example provided in
@@ -204,12 +204,12 @@ resource "aws_autoscaling_group" "eks-worker-node-autoscaling-group" {
   launch_configuration = "${aws_launch_configuration.eks-worker-node-launch-configuration.id}"
   max_size             = 2
   min_size             = 1
-  name                 = "${local.my_name}-asc"
+  name                 = "${local.my_name}-asg"
   vpc_zone_identifier  = flatten(["${var.subnet_ids}"])
 
   tag {
     key                 = "Name"
-    value               = "${local.my_name}-instance"
+    value               = "${local.my_name}-asg"
     propagate_at_launch = true
   }
   tag {
