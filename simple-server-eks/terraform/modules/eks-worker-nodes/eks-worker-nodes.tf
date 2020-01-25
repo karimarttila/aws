@@ -1,6 +1,7 @@
 locals {
-  my_name  = "${var.prefix}-${var.env}-${var.name}"
-  my_env   = "${var.prefix}-${var.env}"
+  my_name             = "${var.prefix}-${var.env}-${var.name}"
+  my_env              = "${var.prefix}-${var.env}"
+  my_private_key_name = "${local.my_name}-workder-node-key"
 }
 
 # Using example provided in
@@ -144,6 +145,40 @@ set -o xtrace
 USERDATA
 }
 
+
+# NOTE: You need to "terraform init" to get the tls provider!
+resource "tls_private_key" "ec2-ssh-key" {
+  algorithm   = "RSA"
+}
+
+# NOTE: If you get 'No available provider "null" plugins'
+# Try: terraform init, terraform get, terraform plan.
+# I.e. resource occasionally fails the first time.
+# When the resource is succesfull you should see the private key
+# in ./terraform/.ssh folder.
+# NOTE: Save this ssh key to bucket TODO if others need to use this machine.
+# Linux version, if you need Windows version ask Kari to create it.
+# NOTE: you need to create the .ssh directory in the env directory.
+resource "null_resource" "ec2-save-ssh-key-linux" {
+  triggers = {
+    key = tls_private_key.ec2-ssh-key.private_key_pem
+  }
+  provisioner "local-exec" {
+    command = <<EOF
+      mkdir -p ${path.module}/.ssh
+      echo "${tls_private_key.ec2-ssh-key.private_key_pem}" > ${path.root}/.ssh/${local.my_private_key_name}
+      chmod 0600 ${path.root}/.ssh/${local.my_private_key_name}
+EOF
+  }
+}
+
+
+resource "aws_key_pair" "ec2-key-pair" {
+  key_name   = local.my_private_key_name
+  public_key = tls_private_key.ec2-ssh-key.public_key_openssh
+}
+
+
 resource "aws_launch_configuration" "eks-worker-node-launch-configuration" {
   associate_public_ip_address = true
   iam_instance_profile        = "${aws_iam_instance_profile.eks-worker-node-instance-profile.name}"
@@ -157,7 +192,7 @@ resource "aws_launch_configuration" "eks-worker-node-launch-configuration" {
   security_groups             = ["${aws_security_group.eks-worker-node-security-group.id}"]
   user_data_base64            = "${base64encode(local.eks-worker-node-userdata)}"
   # For debugging worker nodes
-  key_name                    = "kari-sseks-dev-worker-node-key"
+  key_name                    = local.my_private_key_name
 
   lifecycle {
     create_before_destroy = true
