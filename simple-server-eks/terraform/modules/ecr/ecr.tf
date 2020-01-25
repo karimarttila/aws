@@ -5,7 +5,7 @@ locals {
 
 resource "aws_ecr_repository" "eks-ecr-repository" {
   name = "${local.my_name}"
-  tags {
+  tags = {
     Name        = "${local.my_name}"
     Environment = "${local.my_env}"
     Terraform   = "true"

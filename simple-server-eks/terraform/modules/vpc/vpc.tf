@@ -42,7 +42,7 @@ resource "aws_subnet" "eks-subnet" {
 resource "aws_internet_gateway" "eks-internet-gateway" {
   vpc_id = "${aws_vpc.eks-vpc.id}"
 
-  tags {
+  tags = {
     Name        = "${local.my_name}-internet-gateway"
     Environment = "${local.my_env}"
     Terraform   = "true"
@@ -57,7 +57,7 @@ resource "aws_route_table" "eks-route-table" {
     gateway_id = "${aws_internet_gateway.eks-internet-gateway.id}"
   }
 
-  tags {
+  tags = {
     Name        = "${local.my_name}-route-table"
     Environment = "${local.my_env}"
     Terraform   = "true"

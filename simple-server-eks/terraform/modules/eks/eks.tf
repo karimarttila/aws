@@ -47,7 +47,7 @@ resource "aws_security_group" "eks-security-group" {
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
-  tags {
+  tags = {
     Name        = "${local.my_name}-eks-security-group"
     Environment = "${local.my_env}"
     Terraform   = "true"
@@ -69,12 +69,12 @@ resource "aws_eks_cluster" "eks-cluster" {
   # Since the name is used in VPC tag and EKS glues things together using that tag.
   name     = "${var.eks_cluster_name}"
   role_arn = "${aws_iam_role.eks-iam-role.arn}"
-  version = "1.11"
+  version = "1.14"
 
 
   vpc_config {
     security_group_ids = ["${aws_security_group.eks-security-group.id}"]
-    subnet_ids         = ["${var.subnet_ids}"]
+    subnet_ids         = flatten(["${var.subnet_ids}"])
   }
 
   depends_on = [

@@ -13,12 +13,11 @@
 terraform {
   required_version = ">=0.11.10"
   backend "s3" {
-    bucket     = "kari-sseks-dev-terraform-backend" # NOTE: S3 is regional: always add the same identifying prefix to your S3 buckets!
-    key        = "kari-sseks-dev-terraform.tfstate"
+    bucket     = "kari-testing-aws-intro-demo-terraform-backend" # NOTE: S3 is regional: always add the same identifying prefix to your S3 buckets!
+    key        = "kari-terraform.tfstate"
     # Ireland.
     region     = "eu-west-1"
-    dynamodb_table = "kari-sseks-dev-terraform-backend-table" # NOTE: You have to create this DynamoDB manually with LockID primary key.
-    profile    = "tmv-test"  # NOTE: This is AWS account profile, not env! You probably have two accounts: one dev (or test) and one prod.
+    dynamodb_table = "kari-testing-aws-intro-demo-terraform-backend" # NOTE: You have to create this DynamoDB manually with LockID primary key.
   }
 }
 
