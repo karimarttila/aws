@@ -21,3 +21,5 @@ simple-server-eks/terraform/envs/dev/.terraform/
 
 # SSH keys
 .ssh/
+
+personal/
